@@ -39,16 +39,18 @@ h1 {
 }
 
 #timer {
+	text-align: center;
 	font-weight: 900;
-	
-
+	font-size: 100%;
 }
+
+
 </style>
 <body id="myWindow">
 
-<h1>Mini Game</h1>
+<h1>Mini Javascript Game</h1>
 
-<div id="timer">TIME: 0s</div>
+<div id="timer"><p id="demo">TIME: 0</p></div>
 
 <div id="player"><h1>Drag Me</h1></div>
 
@@ -57,7 +59,11 @@ h1 {
 
 <script>
 
-const enemyNumber = 1;
+const enemyNumber = 4;
+// Time to update dificulty in seconds
+const dificultyUpdateTime = 5;
+
+
 
 class Enemy {
 	constructor(x,y,parent){
@@ -78,8 +84,8 @@ class Enemy {
 		div.style.left = x + "px";
 		div.style.width = this.width + "px";
 		div.style.height = this.height + "px";
-		div.style.background = "#" + Math.floor(Math.random()*16777215).toString(16);
-		div.style.color = "white";
+		div.style.background = "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
+		//div.style.color = "white";
 		
 		parent.appendChild(div);
 	}
@@ -115,8 +121,7 @@ class Enemy {
 }
 
 
-//Make the DIV element draggagle:
-dragElement(document.getElementById("player"));
+
 
 
 // Create the enemies.
@@ -131,33 +136,74 @@ for(i = 0 ; i < enemyNumber ; i++){
 	enemy.push(new Enemy( x_pos, y_pos,document.getElementById("myWindow")));
 }
 
-
-init();
+dragElement(document.getElementById("player"));
+timerDiv = document.getElementById("timer");
+started = false;
+// Font-size of timer label.
+timerLabelSize = 100;
+goalTimerLabelSize = 100;
+//init();
 
 
 
 
 function init(){
+	
+	//Make the DIV element draggagle:
+	started = true;
+	
+	dificulty = 0;
 	// Set the update interval.
-	updateFrameTimerId = setInterval(updateFrame, 10);
-	updateTimerTimerId = setInterval(updateTimer, 100);
+	updateFrameTimerId = setInterval(updateFrame, 10-dificulty);
+	updateTimerTimerId = setInterval(updateTimer, 10);
 	timer = 0;
-	timerDiv = document.getElementById("timer")
+	
 }
 
 function stop(){
+	started = false;
 	clearInterval(updateFrameTimerId);
-	clearInterval(updateTimerTimerId);
+	//clearInterval(updateTimerTimerId);
+	//document.getElementById("player").onmouseup();
+	document.getElementById("player").onmousemove = null;
+	document.getElementById("player").onmousedown = null;
+	goalTimerLabelSize = 300;
 	
-
 }
 
 
 function updateTimer(){
-	timer++;	
-	timerDiv.textContent = "TIME: "+(timer/10).toString()+"s";
+	if( started ){
+		timer++;
+		timerDiv.textContent = "TIME: "+(timer/100).toFixed(2).padStart(8,' ');
+		if(timer%(dificultyUpdateTime*100) == 0){
+			updateDificulty();
+		}
+	}
+	// Animate timer;
+	if(timerLabelSize != goalTimerLabelSize){
+		timerDiv.style.fontSize = timerLabelSize.toString()+"%";
+		if(timerLabelSize > goalTimerLabelSize){
+			timerLabelSize-=2;
+		}else{
+			timerLabelSize+=5;
+		}
+		
+	}
+	
 }
 
+function updateDificulty(){
+	dificulty++;
+	clearInterval(updateFrameTimerId);
+	updateFrameTimerId = setInterval(updateFrame, 10-dificulty);
+	//timerDiv.style.fontSize = "150% ;
+	//Alert Timer
+	var demo_paragraph = document.getElementById( 'timer' );
+	timerLabelSize = 140;
+	//demo_paragraph.style.fontSize = "130%" ;
+	
+}
 
 function updateFrame(){
 	
@@ -170,6 +216,9 @@ function updateFrame(){
 	}
 
 }
+
+
+
 
 
 function dragElement(elmnt) {
@@ -185,6 +234,7 @@ function dragElement(elmnt) {
 
   function dragMouseDown(e) {
 	
+	if(!started)init();
     //document.getElementById(elmnt).innerHTML = "";
 	//elmnt.removeChild(elmnt.firstChild.style.tex);
 	//document.getElementById("h1")
@@ -199,16 +249,18 @@ function dragElement(elmnt) {
   }
 
   function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	if( started ){
+		e = e || window.event;
+		e.preventDefault();
+		// calculate the new cursor position:
+		pos1 = pos3 - e.clientX;
+		pos2 = pos4 - e.clientY;
+		pos3 = e.clientX;
+		pos4 = e.clientY;
+		// set the element's new position:
+		elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	}
   }
 
   function closeDragElement() {
