@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<style>
+#player {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+
+  top: 40vw;
+  left: 50vh;
+  text-align: center;
+  
+  background-color: #a1a1a1;
+  border: 1px solid #d3d3d3;
+}
+
+#enemy1 {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  top: 80px;
+  right: 80px;
+  z-index: 9;
+  background-color: #ff5555;
+  border: 1px solid #d3d3d3;
+}
+
+#mydivheader {
+  padding: 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196F3;
+  color: #fff;
+}
+
+h1 {
+	text-align: center;
+
+}
+</style>
+<body id="myWindow">
+
+<h1>Mini Game</h1>
+
+
+<div id="player"><h1>Drag Me</h1></div>
+
+
+
+
+<script>
+
+const enemyNumber = 4
+
+class Enemy {
+	constructor(x,y,parent){
+		this.parent = parent;
+		this.size = 100;
+		this.x = x;
+		this.y = y;
+		this.vx = 1;
+		this.vy = 1;
+		
+		var div = document.createElement("div");
+		this.id = div;
+		div.style.position= "absolute";
+		div.style.top = y + "px";
+		div.style.left = x + "px";
+		div.style.width = this.size + "px";
+		div.style.height = this.size + "px";
+		div.style.background = "#" + Math.floor(Math.random()*16777215).toString(16);
+		div.style.color = "white";
+		
+		parent.appendChild(div);
+	}
+	update(){
+		this.y += this.vy;
+		this.x += this.vx;
+		this.id.style.top = this.y + "px";
+		this.id.style.left = this.x + "px";
+		if(this.x + this.size >= window.innerWidth){
+			this.vx = -1;
+		}
+		if(this.x <= 0){
+			this.vx = 1;
+		}
+		if(this.y + this.size >= window.innerHeight){
+			this.vy = -1;
+		}
+		if(this.y <= 0){
+			this.vy = 1;
+		}
+	}
+}
+
+
+//Make the DIV element draggagle:
+dragElement(document.getElementById("player"));
+
+
+// Create the enemies.
+var enemy = new Array()
+for(i = 0 ; i < enemyNumber ; i++){
+	enemy.push(new Enemy(100 + (i%2==0?0:700) ,100 + (i>1?0:700),document.getElementById("myWindow")));
+}
+
+// Set the update interval.
+id = setInterval(updateFrame, 1);
+
+
+
+
+function updateFrame(){
+	
+	for(i = 0 ; i < enemyNumber ; i ++){
+		enemy[i].update();
+	}
+
+}
+
+
+function dragElement(elmnt) {
+  
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    //document.getElementById(elmnt).innerHTML = "";
+	//elmnt.removeChild(elmnt.firstChild.style.tex);
+	//document.getElementById("h1")
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+</script>
+
+</body>
+</html>
