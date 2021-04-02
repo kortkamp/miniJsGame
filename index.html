@@ -37,11 +37,18 @@ h1 {
 	text-align: center;
 
 }
+
+#timer {
+	font-weight: 900;
+	
+
+}
 </style>
 <body id="myWindow">
 
 <h1>Mini Game</h1>
 
+<div id="timer">TIME: 0s</div>
 
 <div id="player"><h1>Drag Me</h1></div>
 
@@ -50,7 +57,7 @@ h1 {
 
 <script>
 
-const enemyNumber = 5;
+const enemyNumber = 1;
 
 class Enemy {
 	constructor(x,y,parent){
@@ -94,7 +101,7 @@ class Enemy {
 			this.vy = 0-this.vy;
 		}
 	}
-	checkColision(player){
+	checkCollision(player){
 		if (this.x < player.offsetLeft + player.offsetWidth &&
 			this.x + this.width > player.offsetLeft &&
 			this.y < player.offsetTop + player.offsetHeight &&
@@ -124,18 +131,40 @@ for(i = 0 ; i < enemyNumber ; i++){
 	enemy.push(new Enemy( x_pos, y_pos,document.getElementById("myWindow")));
 }
 
-// Set the update interval.
-var id = setInterval(updateFrame, 10);
+
+init();
 
 
+
+
+function init(){
+	// Set the update interval.
+	updateFrameTimerId = setInterval(updateFrame, 10);
+	updateTimerTimerId = setInterval(updateTimer, 100);
+	timer = 0;
+	timerDiv = document.getElementById("timer")
+}
+
+function stop(){
+	clearInterval(updateFrameTimerId);
+	clearInterval(updateTimerTimerId);
+	
+
+}
+
+
+function updateTimer(){
+	timer++;	
+	timerDiv.textContent = "TIME: "+(timer/10).toString()+"s";
+}
 
 
 function updateFrame(){
 	
 	for(i = 0 ; i < enemyNumber ; i ++){
 		enemy[i].update();
-		if(enemy[i].checkColision(document.getElementById("player"))){
-			clearInterval(id);
+		if(enemy[i].checkCollision(document.getElementById("player"))){
+			stop();
 			//console.log("Stooooooop");
 		}
 	}
