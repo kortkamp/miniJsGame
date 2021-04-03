@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html>
 <style>
+
+
+#board {
+  margin: auto;
+  height: 800px;
+  width: 1200px;
+  border: 1px solid #d3d3d3;
+}
+
 #player {
   height: 100px;
   width: 100px;
   position: absolute;
 
-  top: 50vw;
-  left: 50vh;
+  
+  
   text-align: center;
   
   background-color: #a1a1a1;
@@ -46,27 +55,35 @@ h1 {
 
 
 </style>
+
+
+
 <body id="myWindow">
 
 <h1>Mini Javascript Game</h1>
 
-<div id="timer"><p id="demo">TIME: 0</p></div>
 
-<div id="player"><h1>Drag Me</h1></div>
+
+<div id="board">
+	<div id="player"><h1>Drag Me</h1></div>
+</div>
+
+<div id="timer"><p id="demo">TIME: 0</p></div>
 
 
 
 
 <script>
 
-const enemyNumber = 4;
+const enemyNumber = 5;
+const playerSize = 100;
 // Time to update dificulty in seconds
 const dificultyUpdateTime = 5;
 
 
 
 class Enemy {
-	constructor(x,y,parent){
+	constructor(x,y,dir,parent){
 		this.parent = parent;
 		this.size = 100;
 		this.height = 100;
@@ -74,8 +91,11 @@ class Enemy {
 		this.x = x;
 		this.y = y;
 		this.rnd = Math.random()*2*Math.PI;
-		this.vx = 5*Math.sin(this.rnd);
-		this.vy = 5*Math.cos(this.rnd);
+		//this.vx = 5*Math.sin(this.rnd);
+		//this.vy = 5*Math.cos(this.rnd);
+		
+		this.vx = 5*Math.sin(dir);
+		this.vy = 5*Math.cos(dir);
 		
 		var div = document.createElement("div");
 		this.id = div;
@@ -94,16 +114,18 @@ class Enemy {
 		this.x += this.vx;
 		this.id.style.top = this.y + "px";
 		this.id.style.left = this.x + "px";
-		if(this.x + this.size >= window.innerWidth){
+		
+		// Verify the limits os the parent
+		if(this.x + this.size >= this.parent.offsetWidth + this.parent.offsetLeft ){
 			this.vx = 0-this.vx;
 		}
-		if(this.x <= 0){
+		if(this.x <= this.parent.offsetLeft){
 			this.vx = 0-this.vx;
 		}
-		if(this.y + this.size >= window.innerHeight){
+		if(this.y + this.size >= this.parent.offsetHeight + this.parent.offsetTop){
 			this.vy = 0-this.vy;
 		}
-		if(this.y <= 0){
+		if(this.y <= this.parent.offsetTop){
 			this.vy = 0-this.vy;
 		}
 	}
@@ -122,21 +144,29 @@ class Enemy {
 
 
 
-
+board = document.getElementById("board");
 
 // Create the enemies.
 var enemy = new Array()
 for(i = 0 ; i < enemyNumber ; i++){
 	var ang = i*2*Math.PI/enemyNumber;
-	var x_pos = 300*(Math.sin(ang))+window.innerWidth/2;
+	var x_pos = board.offsetLeft + 300*(Math.sin(ang)) + board.offsetWidth/2  - 50;
 	
-	var y_pos = 300*(Math.cos(ang))+window.innerHeight/2;
+	var y_pos = board.offsetTop + 300*(Math.cos(ang)) + board.offsetHeight/2 - 50;
 	//console.log(x_pos);
 	//console.log(y_pos);
-	enemy.push(new Enemy( x_pos, y_pos,document.getElementById("myWindow")));
+	enemy.push(new Enemy( x_pos, y_pos, i*2*Math.PI/enemyNumber + Math.random()*2*Math.PI/enemyNumber ,document.getElementById("board")));
 }
 
-dragElement(document.getElementById("player"));
+
+
+
+player = document.getElementById("player");
+player.style.top = board.offsetTop + board.offsetHeight/2 - player.offsetHeight/2 + "px";
+player.style.left = board.offsetLeft + board.offsetWidth/2 - player.offsetWidth/2 + "px";
+
+dragElement(player);
+
 timerDiv = document.getElementById("timer");
 started = false;
 // Font-size of timer label.
@@ -154,8 +184,10 @@ function init(){
 	
 	dificulty = 0;
 	// Set the update interval.
+	
 	updateFrameTimerId = setInterval(updateFrame, 10-dificulty);
 	updateTimerTimerId = setInterval(updateTimer, 10);
+	player.textContent = "";
 	timer = 0;
 	
 }
@@ -168,7 +200,27 @@ function stop(){
 	document.getElementById("player").onmousemove = null;
 	document.getElementById("player").onmousedown = null;
 	goalTimerLabelSize = 300;
+	// Ask for new game
+	var div = document.createElement("button");
+		
+		div.style.width = "300px";
+		div.style.height = "40px";
+		div.style.background = "#c0c0f0";
+		div.style.borderRadius  = "25px";
+		div.innerHTML = 'New Game';
+		div.style.fontSize = "200%"
+		div.style.position= "absolute";
+		div.style.left = board.offsetLeft + board.offsetWidth/2 - 150 + "px";
+		div.style.top = board.offsetTop + board.offsetHeight/2 - 20 + "px";
+		div.onclick = function(){
+			location.reload();
+		};
+		//div.style.color = "white";
+		//div.style.innerHTML = ""
+		//div.style.margin = "auto";
+		board.appendChild(div);
 	
+	//location.reload();
 }
 
 
@@ -230,6 +282,7 @@ function dragElement(elmnt) {
   } else {
     /* otherwise, move the DIV from anywhere inside the DIV:*/
     elmnt.onmousedown = dragMouseDown;
+	elmnt.touchstart = dragMouseDown;
   }
 
   function dragMouseDown(e) {
@@ -244,8 +297,10 @@ function dragElement(elmnt) {
     pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
+	document.touchend = closeDragElement;
     // call a function whenever the cursor moves:
     document.onmousemove = elementDrag;
+	document.touchmove = elementDrag;
   }
 
   function elementDrag(e) {
