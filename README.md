@@ -9,3 +9,4 @@ A ideia é criar um jogo simples em Javascript onde o jogador deve desviar o má
 	*	Foi adicionado um detector de colisões checkCollision(playerId) na classe Enemy. A ideia é parar o jogo caso essa funcão retorne true.
 	*	Adicionado contador de tempo.
 	*	Animação do contador de tempo.
+	*	Botão reiniciar.

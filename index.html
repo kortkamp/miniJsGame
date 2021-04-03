@@ -47,6 +47,13 @@ h1 {
 
 }
 
+p {
+	text-align: center;
+
+}
+
+
+
 #timer {
 	text-align: center;
 	font-weight: 900;
@@ -60,7 +67,8 @@ h1 {
 
 <body id="myWindow">
 
-<h1>Mini Javascript Game</h1>
+<h1>Mini Javascript Game <a id="gitLink" href = https://github.com/kortkamp/miniJsGame >on GitHub</a></h1>
+
 
 
 
@@ -68,7 +76,7 @@ h1 {
 	<div id="player"><h1>Drag Me</h1></div>
 </div>
 
-<div id="timer"><p id="demo">TIME: 0</p></div>
+<div id="timer">TIME: 0</div>
 
 
 
@@ -200,25 +208,29 @@ function stop(){
 	document.getElementById("player").onmousemove = null;
 	document.getElementById("player").onmousedown = null;
 	goalTimerLabelSize = 300;
+	
 	// Ask for new game
-	var div = document.createElement("button");
+	var button = document.createElement("button");
+		button.style.width = "300px";
+		button.style.height = "40px";
+		//div.style.background = "#c0c0f0";
+		button.style.borderRadius  = "25px";
+		button.innerHTML = 'New Game';
 		
-		div.style.width = "300px";
-		div.style.height = "40px";
-		div.style.background = "#c0c0f0";
-		div.style.borderRadius  = "25px";
-		div.innerHTML = 'New Game';
-		div.style.fontSize = "200%"
-		div.style.position= "absolute";
-		div.style.left = board.offsetLeft + board.offsetWidth/2 - 150 + "px";
-		div.style.top = board.offsetTop + board.offsetHeight/2 - 20 + "px";
-		div.onclick = function(){
+		button.style.fontSize = "200%"
+		button.style.position= "absolute";
+		button.style.left = board.offsetLeft + board.offsetWidth/2 - 150 + "px";
+		button.style.top = board.offsetTop + board.offsetHeight/2 - 20 + "px";
+		button.onclick = function(){
 			location.reload();
+		};
+		button.onmouseover = function(){
+			
 		};
 		//div.style.color = "white";
 		//div.style.innerHTML = ""
 		//div.style.margin = "auto";
-		board.appendChild(div);
+		board.appendChild(button);
 	
 	//location.reload();
 }
@@ -251,7 +263,7 @@ function updateDificulty(){
 	updateFrameTimerId = setInterval(updateFrame, 10-dificulty);
 	//timerDiv.style.fontSize = "150% ;
 	//Alert Timer
-	var demo_paragraph = document.getElementById( 'timer' );
+	//var demo_paragraph = document.getElementById( 'timer' );
 	timerLabelSize = 140;
 	//demo_paragraph.style.fontSize = "130%" ;
 	
@@ -274,8 +286,9 @@ function updateFrame(){
 
 
 function dragElement(elmnt) {
-  
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  var offsetX = 0;
+  var offsetY = 0;
+  //var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
     /* if present, the header is where you move the DIV from:*/
     document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
@@ -288,6 +301,9 @@ function dragElement(elmnt) {
   function dragMouseDown(e) {
 	
 	if(!started)init();
+	
+	offsetX = e.clientX - elmnt.offsetLeft;
+	offsetY	= e.clientY - elmnt.offsetTop;
     //document.getElementById(elmnt).innerHTML = "";
 	//elmnt.removeChild(elmnt.firstChild.style.tex);
 	//document.getElementById("h1")
@@ -304,17 +320,35 @@ function dragElement(elmnt) {
   }
 
   function elementDrag(e) {
+  
+    
 	if( started ){
 		e = e || window.event;
 		e.preventDefault();
 		// calculate the new cursor position:
-		pos1 = pos3 - e.clientX;
-		pos2 = pos4 - e.clientY;
-		pos3 = e.clientX;
-		pos4 = e.clientY;
+		//pos1 = pos3 - e.clientX;
+		//pos2 = pos4 - e.clientY;
+		//pos3 = e.clientX;
+		//pos4 = e.clientY;
 		// set the element's new position:
-		elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+		//elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+		//elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+		elmnt.style.top = e.clientY - offsetY + "px";
+		elmnt.style.left = e.clientX - offsetX + "px";
+		
+	}
+	
+	if(elmnt.offsetLeft + elmnt.offsetWidth >= board.offsetWidth + board.offsetLeft ){
+		elmnt.style.left = board.offsetWidth + board.offsetLeft- elmnt.offsetWidth + "px";
+	}
+	if(elmnt.offsetLeft <= board.offsetLeft){
+		elmnt.style.left = board.offsetLeft + "px";
+	}
+	if(elmnt.offsetTop + elmnt.offsetHeight >= board.offsetHeight + board.offsetTop){
+		elmnt.style.top	= board.offsetHeight + board.offsetTop - elmnt.offsetHeight + "px";
+	}
+	if(elmnt.offsetTop <= board.offsetTop){
+		elmnt.style.top = board.offsetTop + "px";
 	}
   }
 
