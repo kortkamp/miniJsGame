@@ -12,3 +12,5 @@ A ideia é criar um jogo simples em Javascript onde o jogador deve desviar o má
 	*	Adicionado contador de tempo.
 	*	Animação do contador de tempo.
 	*	Botão reiniciar.
+* 04/04/2021
+	*	Redimensiona os jogo para o tamanho de tela do usuário.
