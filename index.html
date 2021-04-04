@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+<meta name="viewport" 
+        content="width=device-width, 
+        initial-scale=1.0, 
+        user-scalable=no" />
+		
 <style>
+
 
 
 #board {
@@ -19,6 +27,12 @@
   background-color: #a1a1a1;
   border: 1px solid #808080;
 }
+#player:hover {
+	cursor: pointer;
+	border-width: 2px;
+}
+
+
 
 #enemy1 {
   height: 100px;
@@ -58,12 +72,13 @@ p {
 }
 </style>
 
+</head>
 
 
 <body id="myWindow">
 <h1>Mini Javascript Game <a id="gitLink" href = https://github.com/kortkamp/miniJsGame >on GitHub</a></h1>
 <div id="board">
-	<div id="player"><h1>Drag Me</h1></div>
+	<div id="player">Drag Me</div>
 </div>
 <div id="timer">TIME: 0</div>
 
@@ -142,9 +157,12 @@ class Enemy {
 
 // Resize window to fit user screen height
 board = document.getElementById("board");
-screenRatio = window.innerHeight/1200
+screenRatio = window.innerHeight/1100
 board.style.height = board.offsetHeight * screenRatio + "px";
 board.style.width = board.offsetWidth * screenRatio + "px";
+if(board.offsetWidth > window.innerWidth){
+	board.style.width = window.innerWidth + "px";
+}
 
 // Create the enemies.
 var enemy = new Array()
@@ -157,35 +175,87 @@ for(i = 0 ; i < enemyNumber ; i++){
 	//console.log(y_pos);
 	enemy.push(new Enemy( x_pos, y_pos, i*2*Math.PI/enemyNumber + Math.random()*2*Math.PI/enemyNumber ,screenRatio,document.getElementById("board")));
 }
-
+	
 
 
 // Set player properties
 player = document.getElementById("player");
+playerText = document.getElementById("playerText");
 player.style.height = 100*screenRatio + "px";
 player.style.width = 100*screenRatio + "px";
 player.style.top = board.offsetTop + board.offsetHeight/2 - player.offsetHeight/2 + "px";
 player.style.left = board.offsetLeft + board.offsetWidth/2 - player.offsetWidth/2 + "px";
-player.style.fontSize = screenRatio * 100 +"%";
+player.style.fontSize = 2.5*screenRatio * 100 +"%";
 
 // Set player dragable.
-dragElement(player);
-
+//dragElement(player);
 
 timerDiv = document.getElementById("timer");
-started = false;
+gameStarted = false;
+dragging = false;
 // Font-size of timer label.
 timerLabelSize = 100;
-goalTimerLabelSize = 100;
+timerLabelGoalSize = 100;
 //init();
 
+board.addEventListener("mousedown", dragStart, false);
+board.addEventListener("mouseup", dragEnd, false);
+board.addEventListener("mousemove", drag, false);
 
+
+board.addEventListener("touchstart", dragStart, false);
+board.addEventListener("touchend", dragEnd, false);
+board.addEventListener("touchmove", drag, false);
+
+function dragStart(e) {
+	//alert(e.target)
+    if (e.target === player || e.target === playerText) {
+		console.log("drags");
+		//alert("start");
+		if (e.type === "touchstart") {
+			offsetX = e.touches[0].clientX - player.offsetLeft;
+			offsetY	= e.touches[0].clientY - player.offsetTop;
+		} else {
+			offsetX = e.clientX - player.offsetLeft;
+			offsetY	= e.clientY - player.offsetTop;
+		}
+		
+		dragging = true;
+		if(!gameStarted){
+			//console.log("start");
+			init();
+			gameStarted = true;
+		}
+    }
+	
+}
+function dragEnd(e) {
+      console.log("drag end");
+      dragging = false;
+}
+
+function drag(e) {
+		
+      if (dragging) {    
+        e.preventDefault();    
+        if (e.type === "touchmove") {
+			player.style.top = e.touches[0].clientY - offsetY + "px";
+			player.style.left = e.touches[0].clientX - offsetX + "px";
+        } else {
+			player.style.top = e.clientY - offsetY + "px";
+			player.style.left = e.clientX - offsetX + "px";
+        }
+        //xOffset = currentX;
+        //yOffset = currentY;
+        //setTranslate(currentX, currentY, dragItem);
+      }
+}
 
 
 function init(){
 	
 	//Make the DIV element draggagle:
-	started = true;
+	gameStarted = true;
 	
 	dificulty = 0;
 	// Set the update interval.
@@ -198,16 +268,18 @@ function init(){
 }
 
 function stop(){
-	started = false;
+	gameStarted = false;
+	dragging = false;
 	clearInterval(updateFrameTimerId);
 	//clearInterval(updateTimerTimerId);
 	//document.getElementById("player").onmouseup();
 	document.getElementById("player").onmousemove = null;
 	document.getElementById("player").onmousedown = null;
-	goalTimerLabelSize = 300;
+	timerLabelGoalSize = 300;
 	
 	// Ask for new game
 	var button = document.createElement("button");
+		button.style.id	= "newGameButton";
 		button.style.width = "300px";
 		button.style.height = "40px";
 		//div.style.background = "#c0c0f0";
@@ -234,7 +306,7 @@ function stop(){
 
 
 function updateTimer(){
-	if( started ){
+	if( gameStarted ){
 		timer++;
 		timerDiv.textContent = "TIME: "+(timer/100).toFixed(2).padStart(8,' ');
 		if(timer%(dificultyUpdateTime*100) == 0){
@@ -242,16 +314,14 @@ function updateTimer(){
 		}
 	}
 	// Animate timer;
-	if(timerLabelSize != goalTimerLabelSize){
+	if(timerLabelSize != timerLabelGoalSize){
 		timerDiv.style.fontSize = timerLabelSize.toString()+"%";
-		if(timerLabelSize > goalTimerLabelSize){
+		if(timerLabelSize > timerLabelGoalSize){
 			timerLabelSize-=2;
 		}else{
 			timerLabelSize+=5;
-		}
-		
+		}	
 	}
-	
 }
 
 function updateDificulty(){
@@ -282,6 +352,10 @@ function updateFrame(){
 
 
 
+
+
+
+
 function dragElement(elmnt) {
   var offsetX = 0;
   var offsetY = 0;
@@ -289,25 +363,33 @@ function dragElement(elmnt) {
   if (document.getElementById(elmnt.id + "header")) {
     /* if present, the header is where you move the DIV from:*/
     document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+	//document.getElementById(elmnt.id + "header").touchstart = dragMouseDown;
   } else {
     /* otherwise, move the DIV from anywhere inside the DIV:*/
     elmnt.onmousedown = dragMouseDown;
-	elmnt.touchstart = dragMouseDown;
+	//elmnt.touchstart = dragMouseDown;
   }
 
   function dragMouseDown(e) {
 	
-	if(!started)init();
+	if(!gameStarted)init();
 	
-	offsetX = e.clientX - elmnt.offsetLeft;
-	offsetY	= e.clientY - elmnt.offsetTop;
+	if (e.type === "touchmove") {
+		offsetX = e.touches[0].clientX - elmnt.offsetLeft;
+		offsetY	= e.touches[0].clientY - elmnt.offsetTop;
+    } else {
+		offsetX = e.clientX - elmnt.offsetLeft;
+		offsetY	= e.clientY - elmnt.offsetTop;
+    }
+	
     //document.getElementById(elmnt).innerHTML = "";
 	//elmnt.removeChild(elmnt.firstChild.style.tex);
 	//document.getElementById("h1")
     e = e || window.event;
     e.preventDefault();
     // get the mouse cursor position at startup:
-    pos3 = e.clientX;
+    
+	pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
 	document.touchend = closeDragElement;
@@ -318,8 +400,8 @@ function dragElement(elmnt) {
 
   function elementDrag(e) {
   
-    
-	if( started ){
+	if( gameStarted ){
+		//alert(e.clientY);
 		e = e || window.event;
 		e.preventDefault();
 		// calculate the new cursor position:
@@ -330,9 +412,13 @@ function dragElement(elmnt) {
 		// set the element's new position:
 		//elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
 		//elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-		elmnt.style.top = e.clientY - offsetY + "px";
-		elmnt.style.left = e.clientX - offsetX + "px";
-		
+		if (e.type === "touchmove") {
+			elmnt.style.top = e.touches[0].clientY - offsetY + "px";
+			elmnt.style.left = e.touches[0].clientX - offsetX + "px";
+        } else {
+			elmnt.style.top = e.clientY - offsetY + "px";
+			elmnt.style.left = e.clientX - offsetX + "px";
+        }	
 	}
 	
 	if(elmnt.offsetLeft + elmnt.offsetWidth >= board.offsetWidth + board.offsetLeft ){
