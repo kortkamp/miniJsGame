@@ -7,20 +7,17 @@
   margin: auto;
   height: 800px;
   width: 1200px;
-  border: 1px solid #d3d3d3;
+  border: 3px solid #d3d3d3;
+  background-color: #d1d1d1;
 }
 
 #player {
   height: 100px;
   width: 100px;
   position: absolute;
-
-  
-  
-  text-align: center;
-  
+  text-align: center;  
   background-color: #a1a1a1;
-  border: 1px solid #d3d3d3;
+  border: 1px solid #808080;
 }
 
 #enemy1 {
@@ -102,6 +99,7 @@ class Enemy {
 		div.style.left = x + "px";
 		div.style.width = this.width + "px";
 		div.style.height = this.height + "px";
+		div.style.border = "1px solid #808080";
 		div.style.background = "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
 		//div.style.color = "white";
 		
