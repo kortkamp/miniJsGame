@@ -156,6 +156,8 @@ class Enemy {
 
 
 // Resize window to fit user screen height
+window = document.getElementById("myWindow");
+
 board = document.getElementById("board");
 screenRatio = window.innerHeight/1100
 board.style.height = board.offsetHeight * screenRatio + "px";
@@ -197,14 +199,14 @@ timerLabelGoalSize = 100;
 
 
 // Add listener functions to mouse events.
-board.addEventListener("mousedown", dragStart, false);
-board.addEventListener("mouseup", dragEnd, false);
-board.addEventListener("mousemove", drag, false);
+window.addEventListener("mousedown", dragStart, false);
+window.addEventListener("mouseup", dragEnd, false);
+window.addEventListener("mousemove", drag, false);
 
 // Add listener functions to touch events.
-board.addEventListener("touchstart", dragStart, false);
-board.addEventListener("touchend", dragEnd, false);
-board.addEventListener("touchmove", drag, false);
+window.addEventListener("touchstart", dragStart, false);
+window.addEventListener("touchend", dragEnd, false);
+window.addEventListener("touchmove", drag, false);
 
 function dragStart(e) {
 	
